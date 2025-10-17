@@ -1,25 +1,61 @@
 pipeline {
-    agent {
-  label 'dev'
-}
-tools {
-  maven 'maven'
-}
+    agent any
+
+    environment {
+        DOCKER_HUB_USER = 'greatcoderhyd'
+        APP_NAME = 'pet-shop-app'
+        IMAGE_TAG = 'latest'
+        APP_PORT = '8082'  // You can change this if 8080 is busy
+    }
+
     stages {
-        stage('Git') {
+
+        stage('Checkout Code from GitHub') {
             steps {
-                git branch: 'main', url: 'https://github.com/vamsibyramala/pet_shop.git'
+                git branch: 'main', url: 'https://github.com/Greatcodertech/pet_shop.git'
             }
         }
-        stage('maven') {
+
+        stage('Build Docker Image') {
             steps {
-                sh 'mvn clean package'
+                sh '''
+                # Multi-stage Docker build handles Maven and WAR
+                docker build -t $APP_NAME:$IMAGE_TAG -f Dockerfile .
+                '''
             }
         }
-        stage('deploy') {
+
+        stage('Run Docker Container') {
             steps {
-                deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: 'tomcat', path: '', url: 'http://18.216.225.116:8080/')], contextPath: 'myapp', war: '**/*.war'
+                sh '''
+                # Remove any existing container with same name
+                docker rm -f $APP_NAME || true
+
+                # Run new container
+                docker run -d -p $APP_PORT:8080 --name $APP_NAME $APP_NAME:$IMAGE_TAG
+                '''
             }
+        }
+
+        stage('Push Image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+            docker tag $APP_NAME:$IMAGE_TAG $DOCKER_USER/$APP_NAME:$IMAGE_TAG
+            docker push $DOCKER_USER/$APP_NAME:$IMAGE_TAG
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Pet Shop app deployed successfully! Visit: http://<EC2-PUBLIC-IP>:$APP_PORT"
+        }
+        failure {
+            echo "❌ Build failed — please check Jenkins logs."
         }
     }
 }
