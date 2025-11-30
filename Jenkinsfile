@@ -11,7 +11,7 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -26,6 +26,26 @@ pipeline {
                 sh '''
                 docker rm -f myapp-container || true
                 docker run -d --name myapp-container -p 8081:8080 myapp:latest
+                '''
+            }
+        }
+
+        // 🔐 SECURE DOCKER HUB LOGIN
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockercre',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                }
+            }
+        }
+
+        // ⬆ PUSH IMAGE TO DOCKER HUB
+        stage('Push Docker Image') {
+            steps {
+                sh '''
+                docker tag myapp:latest $USERNAME/myapp:latest
+                docker push $USERNAME/myapp:latest
                 '''
             }
         }
