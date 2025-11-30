@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "myapp"
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -17,7 +21,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t myapp:latest .'
+                sh 'docker build -t ${IMAGE_NAME}:latest .'
             }
         }
 
@@ -30,22 +34,20 @@ pipeline {
             }
         }
 
-        // 🔐 LOGIN TO DOCKER HUB (using Jenkins credentials: dockercre)
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockercre',
-                    usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                        sh 'echo $PASS | docker login -u greatcoderhyd --password-stdin'
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
                 }
             }
         }
 
-        // 📤 PUSH IMAGE TO DOCKER HUB (NO VARIABLES – SAFE)
-        stage('Push Docker Image') {
+        stage('Tag & Push Docker Image') {
             steps {
                 sh '''
-                docker tag myapp:latest greatcoderhyd/myapp:latest
-                docker push greatcoderhyd/myapp:latest
+                docker tag ${IMAGE_NAME}:latest $USERNAME/${IMAGE_NAME}:latest
+                docker push $USERNAME/${IMAGE_NAME}:latest
                 '''
             }
         }
@@ -53,10 +55,10 @@ pipeline {
 
     post {
         success {
-            echo "🚀 SUCCESS! Image pushed to Docker Hub: https://hub.docker.com/r/greatcoderhyd/myapp"
+            echo "🚀 SUCCESS! Image pushed to Docker Hub."
         }
         failure {
-            echo "❌ Build failed — check logs. Will fix immediately."
+            echo "❌ Build failed — check logs."
         }
     }
 }
