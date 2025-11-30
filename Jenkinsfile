@@ -30,7 +30,7 @@ pipeline {
             }
         }
 
-        // 🔐 SECURE DOCKER HUB LOGIN
+        // 🔐 LOGIN TO DOCKER HUB (YOUR CREDENTIAL ID = dockercre)
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockercre',
@@ -40,7 +40,7 @@ pipeline {
             }
         }
 
-        // ⬆ PUSH IMAGE TO DOCKER HUB
+        // 📤 PUSH IMAGE TO DOCKER HUB
         stage('Push Docker Image') {
             steps {
                 sh '''
@@ -48,6 +48,15 @@ pipeline {
                 docker push $USERNAME/myapp:latest
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "🚀 SUCCESS! Image pushed to Docker Hub."
+        }
+        failure {
+            echo "❌ Build failed — check logs."
         }
     }
 }
