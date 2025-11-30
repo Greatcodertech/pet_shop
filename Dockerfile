@@ -8,7 +8,7 @@ WORKDIR /usr/local/tomcat/webapps/
 RUN rm -rf ROOT
 
 # 4. Copy your WAR file from pet_shop/target/ into Tomcat
-COPY /var/lib/jenkins/workspace/JENKINS_pipe/target/*.war /usr/local/tomcat/webapps/ROOT.war
+COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
 
 # 5. Expose port
 EXPOSE 8080
