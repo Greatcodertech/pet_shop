@@ -3,7 +3,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code from GitHub') {
+        stage('Checkout Code fro GitHub') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/Greatcodertech/pet_shop.git'
