@@ -3,14 +3,14 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout Code from GitHub') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/Greatcodertech/pet_shop.git'
             }
         }
 
-        stage('Build') {
+        stage('Build the Application') {
             steps {
                 sh 'mvn clean package'
             }
@@ -20,13 +20,16 @@ pipeline {
             steps {
                 deploy adapters: [
                     tomcat9(
-                        credentialsId: 'tomcatcredential',
-                        url: 'http://98.91.201.97:8090'
+                        alternativeDeploymentContext: '',
+                        credentialsId: 'gcpass',
+                        path: '',
+                        url: 'http://54.67.103.44:8060'
                     )
                 ],
                 contextPath: 'ROOT',
                 war: '**/*.war'
             }
         }
+
     }
 }
