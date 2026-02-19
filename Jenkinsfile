@@ -3,30 +3,14 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Welcome & Checkout Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Greatcodertech/pet_shop.git'
+                echo "====================================="
+                echo "   Welcome to Greatcoder CI/CD 🚀"
+                echo "   Starting Pipeline Execution..."
+                echo "====================================="
             }
         }
 
-        stage('Build with Maven') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Deploy to Tomcat') {
-            steps {
-                deploy adapters: [
-                    tomcat9(
-                        credentialsId: 'cred',
-                        url: 'http://3.108.5.66:8090'
-                    )
-                ],
-                contextPath: 'hello',
-                war: '**/*.war'
-            }
-        }
     }
 }
