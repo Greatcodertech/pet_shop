@@ -3,12 +3,15 @@ pipeline {
 
     stages {
 
-        stage('Welcome & Checkout Code') {
+        stage('Get The Code from Git') {
             steps {
-                echo "====================================="
-                echo "   Welcome to Greatcoder CI/CD 🚀"
-                echo "   Starting Pipeline Execution..."
-                echo "====================================="
+                git branch: 'main', url: 'https://github.com/Greatcodertech/pet_shop.git'
+            }
+        }
+
+        stage('Build the Code') {
+            steps {
+                sh 'mvn clean package'
             }
         }
 
