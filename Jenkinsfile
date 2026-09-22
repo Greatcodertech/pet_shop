@@ -14,6 +14,9 @@ pipeline {
         stage('Build the Code') {
             steps {
                 sh 'mvn clean package'
+                sh 'ls -lh target/'
+                sh 'mv target/*.war target/ROOT.war'
+                sh 'ls -lh target/ROOT.war'
             }
         }
 
@@ -27,7 +30,7 @@ pipeline {
                         url: 'http://13.232.230.207:8085/'
                     )
                 ],
-                war: '**/ROOT.war'
+                war: 'target/ROOT.war'
             }
         }
 
