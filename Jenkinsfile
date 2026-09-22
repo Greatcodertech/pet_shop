@@ -1,3 +1,4 @@
+```groovy
 pipeline {
 
     agent any
@@ -27,10 +28,10 @@ pipeline {
                         url: 'http://13.232.230.207:8085/'
                     )
                 ],
-                contextPath: 'Loginpage',
                 war: '**/*.war'
             }
         }
 
     }
 }
+```
