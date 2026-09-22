@@ -27,7 +27,7 @@ pipeline {
                         url: 'http://13.232.230.207:8085/'
                     )
                 ],
-                war: '**/*.war'
+                war: '**/ROOT.war'
             }
         }
 
